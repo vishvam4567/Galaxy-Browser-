@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Browser</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: white;
+    background:
+    radial-gradient(circle at top, #342078, transparent 45%),
+    linear-gradient(135deg, #08051c, #101044, #240b42);
+}
+header {
+    padding: 22px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #bcaaff;
+}
+.container {
+    max-width: 850px;
+    margin: 80px auto;
+    padding: 20px;
+    text-align: center;
+}
+.logo {
+    font-size: 65px;
+}
+h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+.subtitle {
+    color: #b9b5d8;
+    margin-bottom: 35px;
+}
+.search-box {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 18px;
+    box-shadow: 0 0 30px #7655ff66;
+}
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    border-radius: 12px;
+}
+button {
+    border: none;
+    cursor: pointer;
+    padding: 13px 18px;
+    border-radius: 12px;
+    background: #7655ff;
+    color: white;
+    font-size: 15px;
+}
+button:hover {
+    background: #987dff;
+}
+.shortcuts {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 35px;
+}
+.shortcut {
+    width: 105px;
+    padding: 18px 8px;
+    background: #ffffff12;
+    border: 1px solid #ffffff25;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.shortcut:hover {
+    background: #7655ff55;
+}
+.shortcut div {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+.section {
+    margin-top: 40px;
+    text-align: left;
+    background: #ffffff10;
+    padding: 20px;
+    border-radius: 15px;
+}
+.section h3 {
+    color: #c3b4ff;
+}
+.item {
+    padding: 10px;
+    border-bottom: 1px solid #ffffff20;
+    overflow-wrap: anywhere;
+}
+.item button {
+    margin-left: 8px;
+    padding: 7px 10px;
+}
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #aaa;
+}
+@media(max-width: 500px) {
+    .container {
+        margin: 35px auto;
+    }
+    h1 {
+        font-size: 32px;
+    }
+    .search-box {
+        flex-wrap: wrap;
+    }
+    .search-box button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+<header>🌌 GALAXY BROWSER</header>
+<div class="container">
+    <div class="logo">🚀</div>
+    <h1>Explore the Universe</h1>
+    <p class="subtitle">
+        One browser. Endless possibilities.
+    </p>
+    <form class="search-box" id="searchForm">
+        <input
+            id="searchInput"
+            placeholder="Search or enter a website..."
+            autocomplete="off"
+            required
+        >
+        <button type="submit">🔍 Search</button>
+    </form>
+    <div class="shortcuts">
+        <div class="shortcut" onclick="quickSearch('https://www.google.com')">
+            <div>🔎</div>Google
+        </div>
+        <div class="shortcut" onclick="quickSearch('https://www.youtube.com')">
+            <div>▶️</div>YouTube
+        </div>
+        <div class="shortcut" onclick="quickSearch('https://www.wikipedia.org')">
+            <div>📚</div>Wikipedia
+        </div>
+        <div class="shortcut" onclick="quickSearch('https://github.com')">
+            <div>💻</div>GitHub
+        </div>
+    </div>
+    <div class="section">
+        <h3>⭐ Bookmarks</h3>
+        <div id="bookmarks">No bookmarks yet.</div>
+    </div>
+    <div class="section">
+        <h3>🕘 Recent History</h3>
+        <div id="history">No history yet.</div>
+        <button onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+<footer>
+    Galaxy Browser © 2026 | Explore Beyond 🚀
+</footer>
+<script>
+let bookmarks = JSON.parse(
+    localStorage.getItem("galaxyBookmarks") || "[]"
+);
+let history = JSON.parse(
+    localStorage.getItem("galaxyHistory") || "[]"
+);
+function getURL(value) {
+    value = value.trim();
+    if (!value) return null;
+    if (/^https?:\/\//i.test(value)) {
+        return value;
+    }
+    if (/^[^\s]+\.[^\s]+$/.test(value)) {
+        return "https://" + value;
+    }
+    return "https://www.google.com/search?q=" +
+        encodeURIComponent(value);
+}
+function search(value) {
+    let url = getURL(value);
+    if (!url) return;
+    history.unshift(url);
+    history = [...new Set(history)].slice(0, 20);
+    localStorage.setItem(
+        "galaxyHistory",
+        JSON.stringify(history)
+    );
+    renderHistory();
+    window.open(url, "_blank", "noopener");
+}
+document.getElementById("searchForm")
+.addEventListener("submit", function(e) {
+    e.preventDefault();
+    search(document.getElementById("searchInput").value);
+});
+function quickSearch(url) {
+    search(url);
+}
+function addBookmark(url) {
+    if (!bookmarks.includes(url)) {
+        bookmarks.unshift(url);
+        localStorage.setItem(
+            "galaxyBookmarks",
+            JSON.stringify(bookmarks)
+        );
+        renderBookmarks();
+    }
+}
+function renderBookmarks() {
+    let box = document.getElementById("bookmarks");
+    if (!bookmarks.length) {
+        box.innerHTML = "No bookmarks yet.";
+        return;
+    }
+    box.innerHTML = bookmarks.map((url, index) => `
+        <div class="item">
+            ${url}
+            <button onclick="search('${url}')">Open</button>
+            <button onclick="removeBookmark(${index})">Remove</button>
+        </div>
+    `).join("");
+}
+function removeBookmark(index) {
+    bookmarks.splice(index, 1);
+    localStorage.setItem(
+        "galaxyBookmarks",
+        JSON.stringify(bookmarks)
+    );
+    renderBookmarks();
+}
+function renderHistory() {
+    let box = document.getElementById("history");
+    if (!history.length) {
+        box.innerHTML = "No history yet.";
+        return;
+    }
+    box.innerHTML = history.map(url => `
+        <div class="item">
+            ${url}
+            <button onclick="search('${url}')">Open</button>
+            <button onclick="addBookmark('${url}')">⭐ Save</button>
+        </div>
+    `).join("");
+}
+function clearHistory() {
+    history = [];
+    localStorage.removeItem("galaxyHistory");
+    renderHistory();
+}
+renderBookmarks();
+renderHistory();
+</script>
+</body>
+</html>
